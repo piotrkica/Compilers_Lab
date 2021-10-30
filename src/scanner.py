@@ -62,7 +62,15 @@ t_GREATER_EQUAL = r'\>='
 t_NOT_EQUAL = r'\!='
 t_EQUAL = r'\=='
 
-t_STRING = r'".*"'
+
+def t_STRING(t):
+    r"""\"""(.|\n)*?""\"|\'\'\'(.|\n)*?\'\'\'|"(.|\n)*?"|'(.|\n)*?'"""
+    if t.value[:3] == '"""' or t.value[:3] == "'''":
+        t.value = t.value[3:-3]
+    else:
+        t.value = t.value[1:-1]
+
+    return t
 
 
 def t_ID(t):

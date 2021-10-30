@@ -72,7 +72,8 @@ def t_ID(t):
 
 
 def t_FLOATNUM(t):
-    r'([0-9]*[\.][0-9]+|[0-9]+[\.][0-9]*)((E|e)(\+|-)?[0-9]+)?'  # TODO check and do consider 2.E-4 as a float or not?
+    r'([0-9]*[\.][0-9]+|[0-9]+[\.][0-9]*)((E|e)(\+|-)?[0-9]+)?|([0-9]+)((E|e)(\+|-)?[0-9]+)'
+    #  .0 cases       OR  0. cases     AND maybe exp notation OR int with exp notation
     t.value = float(t.value)
     return t
 

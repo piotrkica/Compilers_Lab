@@ -3,9 +3,6 @@ import ply.yacc as yacc
 
 tokens = scanner.tokens
 
-# TODO: add uminus operator and similar (check literals in scanner)
-# TODO: rethink p_if_instr
-# TODO: infinite else ifs
 # TODO: split expressions to functions (at the end)
 
 precedence = (
@@ -34,8 +31,7 @@ def p_program(p):
 
 def p_instructions(p):
     """instructions : instructions instruction
-                    | instructions '{' instructions '}'
-                    | instruction """
+                    | instruction"""
 
 
 def p_instruction(p):
@@ -48,7 +44,8 @@ def p_instruction(p):
                    | return_instr
                    | print_instr
                    | expression
-                    """
+                   | '{' instructions '}' """
+
 
 def p_assign_instr(p):
     """assign_instr : ID '=' expression ';'
@@ -58,68 +55,65 @@ def p_assign_instr(p):
                     | ID MULASSIGN expression ';'
                     | ID DIVASSIGN expression ';'
                     | ID '[' indexes ']' '=' expression ';'
-                    | ID '=' arrays ';'
-                    """
+                    | ID '=' arrays ';'"""
+
 
 def p_arrays(p):
     """arrays :  '[' arrays ']'
               | arrays ',' arrays
-              | '[' indexes ']'
-    """
+              | '[' indexes ']'"""
+
 
 def p_indexes(p):
     """ indexes : indexes ',' index
-                | index
-    """
+                | index"""
+
 
 def p_index(p):
     """ index : INTNUM
-              | ID
-    """
+              | ID"""
+
 
 def p_if_instr(p):
-    """if_instr : IF '(' expression ')' '{' instructions '}' %prec IF_END
-                | IF '(' expression ')' instruction %prec IF_END
-                | IF '(' expression ')' instruction ELSE instruction
-                | IF '(' expression ')' instruction ELSE '{' instructions '}'
-                | IF '(' expression ')' '{' instructions '}' ELSE instruction
-                | IF '(' expression ')' '{' instructions '}' ELSE '{' instructions '}'"""
+    """if_instr : IF '(' comparison ')' instruction %prec IF_END
+                | IF '(' comparison ')' instruction ELSE instruction"""
 
 
 def p_while_instr(p):
-    """while_instr : WHILE '(' instruction ')' instruction
-                   | WHILE '(' instruction ')' '{' instructions '}' """
+    """while_instr : WHILE '(' comparison ')' instruction"""
+
 
 def p_for_instr(p):
-    """for_instr : FOR range instruction
-                 | FOR range '{' instruction '}' """
+    """for_instr : FOR range instruction"""
+
 
 def p_range(p):
     """range : ID '=' expression ':' expression"""
 
+
 def p_break_instr(p):
     """break_instr : BREAK ';' """
+
 
 def p_continue_instr(p):
     """continue_instr : CONTINUE ';' """
 
+
 def p_return_instr(p):
-    """return_instr : RETURN expression ';' """
+    """return_instr : RETURN expression ';'
+                    | RETURN ';' """
+
 
 def p_print_instr(p):
     """print_instr : PRINT printable ';' """
+
 
 def p_printable(p):
     """printable : printable ',' expression
                  | expression"""
 
 def p_expression(p):
-    """expression : expression LESSER_THAN expression
-                  | expression GREATER_THAN expression
-                  | expression LESSER_EQUAL expression
-                  | expression GREATER_EQUAL expression
-                  | expression NOT_EQUAL expression
-                  | expression EQUAL expression
+    """expression : comparison
                   | expression '+' expression
                   | expression '-' expression
                   | expression '*' expression
@@ -133,12 +127,23 @@ def p_expression(p):
                   | EYE '(' expression ')'
                   | ONES '(' expression ')'
                   | ZEROS '(' expression ')'
-                  | expression "\'"
+                  | expression "'"
                   | FLOATNUM
                   | INTNUM
                   | STRING
                   | ID
                   """
+
+def p_comparison(p):
+    """comparison : expression LESSER_THAN expression
+                   | expression GREATER_THAN expression
+                   | expression LESSER_EQUAL expression
+                   | expression GREATER_EQUAL expression
+                   | expression NOT_EQUAL expression
+                   | expression EQUAL expression"""
+
+
+
 
 
 parser = yacc.yacc()

@@ -3,10 +3,7 @@ import ply.yacc as yacc
 
 tokens = scanner.tokens
 
-# TODO: array case
-# TODO: '{' and '}' for code blocks
 # TODO: add uminus operator and similar (check literals in scanner)
-# TODO: fix everything for data/examples
 # TODO: rethink p_if_instr
 # TODO: infinite else ifs
 # TODO: split expressions to functions (at the end)
@@ -16,6 +13,7 @@ precedence = (
     ('nonassoc', 'ELSE'),
     ('left', 'LESSER_THAN', 'GREATER_THAN', 'LESSER_EQUAL', 'GREATER_EQUAL', 'NOT_EQUAL', 'EQUAL'),
     ("right", "=", ":"),
+    ('left', ','),
     ("left", '+', '-'),
     ("left", '*', '/'),
     ('left', 'DOTADD', 'DOTSUB'),
@@ -36,6 +34,7 @@ def p_program(p):
 
 def p_instructions(p):
     """instructions : instructions instruction
+                    | instructions '{' instructions '}'
                     | instruction """
 
 
@@ -53,11 +52,30 @@ def p_instruction(p):
 
 def p_assign_instr(p):
     """assign_instr : ID '=' expression ';'
+                    | ID '=' '-' expression ';'
                     | ID PLUSASSIGN expression ';'
                     | ID SUBASSIGN expression ';'
                     | ID MULASSIGN expression ';'
                     | ID DIVASSIGN expression ';'
+                    | ID '[' indexes ']' '=' expression ';'
+                    | ID '=' arrays ';'
                     """
+
+def p_arrays(p):
+    """arrays :  '[' arrays ']'
+              | arrays ',' arrays
+              | '[' indexes ']'
+    """
+
+def p_indexes(p):
+    """ indexes : indexes ',' index
+                | index
+    """
+
+def p_index(p):
+    """ index : INTNUM
+              | ID
+    """
 
 def p_if_instr(p):
     """if_instr : IF '(' expression ')' '{' instructions '}' %prec IF_END
@@ -95,7 +113,6 @@ def p_printable(p):
     """printable : printable ',' expression
                  | expression"""
 
-
 def p_expression(p):
     """expression : expression LESSER_THAN expression
                   | expression GREATER_THAN expression
@@ -112,6 +129,7 @@ def p_expression(p):
                   | expression DOTMUL expression
                   | expression DOTDIV expression
                   | '(' expression ')'
+                  | '(' '-' expression ')'
                   | EYE '(' expression ')'
                   | ONES '(' expression ')'
                   | ZEROS '(' expression ')'

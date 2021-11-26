@@ -3,8 +3,6 @@ import ply.yacc as yacc
 
 tokens = scanner.tokens
 
-# TODO: split expressions to functions (at the end)
-
 precedence = (
     ("nonassoc", 'IF_END'),
     ('nonassoc', 'ELSE'),
@@ -15,6 +13,7 @@ precedence = (
     ("left", '*', '/'),
     ('left', 'DOTADD', 'DOTSUB'),
     ('left', 'DOTMUL', 'DOTDIV'),
+    # ('right', 'UMINUS')
 )
 
 
@@ -26,12 +25,12 @@ def p_error(p):
 
 
 def p_program(p):
-    """program : instructions"""
+    """program : instructions """
 
 
 def p_instructions(p):
     """instructions : instructions instruction
-                    | instruction"""
+                    | instruction """
 
 
 def p_instruction(p):
@@ -54,8 +53,8 @@ def p_assign_instr(p):
                     | ID SUBASSIGN expression ';'
                     | ID MULASSIGN expression ';'
                     | ID DIVASSIGN expression ';'
-                    | ID '[' indexes ']' '=' expression ';'
-                    | ID '=' arrays ';'"""
+                    | ID arrays '=' expression ';'
+                    | ID '=' arrays ';' """
 
 
 def p_arrays(p):
@@ -75,20 +74,20 @@ def p_index(p):
 
 
 def p_if_instr(p):
-    """if_instr : IF '(' comparison ')' instruction %prec IF_END
-                | IF '(' comparison ')' instruction ELSE instruction"""
+    """if_instr : IF '(' expression ')' instruction %prec IF_END
+                | IF '(' expression ')' instruction ELSE instruction """
 
 
 def p_while_instr(p):
-    """while_instr : WHILE '(' comparison ')' instruction"""
+    """while_instr : WHILE '(' expression ')' instruction """
 
 
 def p_for_instr(p):
-    """for_instr : FOR range instruction"""
+    """for_instr : FOR range instruction """
 
 
 def p_range(p):
-    """range : ID '=' expression ':' expression"""
+    """range : ID '=' expression ':' expression """
 
 
 def p_break_instr(p):
@@ -110,40 +109,58 @@ def p_print_instr(p):
 
 def p_printable(p):
     """printable : printable ',' expression
-                 | expression"""
+                 | expression """
 
-def p_expression(p):
-    """expression : comparison
-                  | expression '+' expression
+
+def p_comparison(p):
+    """expression : expression LESSER_THAN expression
+                  | expression GREATER_THAN expression
+                  | expression LESSER_EQUAL expression
+                  | expression GREATER_EQUAL expression
+                  | expression NOT_EQUAL expression
+                  | expression EQUAL expression """
+
+
+# def p_unary(p):
+#     """expression : '-' expression %prec UMINUS"""
+
+def p_basic_operations(p):
+    """expression : expression '+' expression
                   | expression '-' expression
                   | expression '*' expression
-                  | expression '/' expression
-                  | expression DOTADD expression
+                  | expression '/' expression """
+
+
+def p_matrix_operations(p):
+    """expression : expression DOTADD expression
                   | expression DOTSUB expression
                   | expression DOTMUL expression
                   | expression DOTDIV expression
-                  | '(' expression ')'
-                  | '(' '-' expression ')'
-                  | EYE '(' expression ')'
+                  | expression "'" """
+
+
+def p_matrix_declarations(p):
+    """expression : EYE '(' expression ')'
                   | ONES '(' expression ')'
-                  | ZEROS '(' expression ')'
-                  | expression "'"
-                  | FLOATNUM
-                  | INTNUM
-                  | STRING
-                  | ID
-                  """
-
-def p_comparison(p):
-    """comparison : expression LESSER_THAN expression
-                   | expression GREATER_THAN expression
-                   | expression LESSER_EQUAL expression
-                   | expression GREATER_EQUAL expression
-                   | expression NOT_EQUAL expression
-                   | expression EQUAL expression"""
+                  | ZEROS '(' expression ')' """
 
 
+def p_parentheses(p):
+    """expression : '(' expression ')'
+                  | '(' '-' expression ')' """
 
+
+def p_expression_number(p):
+    """expression : FLOATNUM
+                  | INTNUM """
+
+
+def p_expression_string(p):
+    """expression : STRING """
+
+
+def p_expression_id(p):
+    """expression : ID """
 
 
 parser = yacc.yacc()

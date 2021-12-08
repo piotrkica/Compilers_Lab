@@ -1,5 +1,6 @@
 from src import scanner
 import ply.yacc as yacc
+from src import AST
 
 tokens = scanner.tokens
 
@@ -12,8 +13,8 @@ precedence = (
     ("left", '+', '-'),
     ('left', 'DOTADD', 'DOTSUB'),  # TODO polaczyc
     ("left", '*', '/'),
-    ('left', 'DOTADD', 'DOTSUB'),
     ('left', 'DOTMUL', 'DOTDIV'),
+    ('left', "'"),  # dodalem
     # ('right', 'UMINUS')
 )
 
@@ -27,11 +28,17 @@ def p_error(p):
 
 def p_program(p):
     """program : instructions """
+    p[0] = p[1]
 
 
-def p_instructions(p):
-    """instructions : instructions instruction
-                    | instruction """
+def p_instructions_2(p):
+    """instructions : instructions instruction """
+    p[0] = AST.Doubler(p[1], p[2])
+
+
+def p_instructions_1(p):
+    """instructions : instruction """
+    p[0] = p[1]
 
 
 def p_instruction(p):
@@ -43,8 +50,13 @@ def p_instruction(p):
                    | continue_instr
                    | return_instr
                    | print_instr
-                   | expression
-                   | '{' instructions '}' """
+                   | expression """
+    p[0] = p[1]
+
+
+def p_instruction_in(p):
+    """instruction : '{' instructions '}' """
+    p[0] = p[2]
 
 
 def p_assign_instr(p):
@@ -53,63 +65,99 @@ def p_assign_instr(p):
                     | ID SUBASSIGN expression ';'
                     | ID MULASSIGN expression ';'
                     | ID DIVASSIGN expression ';'
-                    | ID arrays '=' expression ';'
                     | ID '=' arrays ';' """
+    p[0] = AST.AssignInstr(p[2], p[1], p[3])
 
 
-def p_arrays(p):  # TODO
-    """arrays :  '[' arrays ']'
-              | arrays ',' arrays
-              | '[' indexes ']'"""
+def p_assign_instr_ref(p):
+    """assign_instr : ID '[' indexes ']' '=' expression ';' """
+    p[0] = AST.Ref(p[5], p[1], p[3], p[6])
 
 
-def p_indexes(p):
-    """ indexes : indexes ',' index
-                | index"""
+def p_assign_instr_other(p):  # TODO trzeba albo naprawic uminusa albo napisac case dla tego
+    """assign_instr : ID '=' '-' expression ';' """
+
+
+def p_arrays_1(p):
+    """arrays : '[' arrays ']'
+              | '[' indexes ']' """
+    p[0] = AST.Vector(p[2])
+
+
+def p_arrays_2(p):  # TODO trzeba usunac takie dublowanie
+    """arrays : arrays ',' arrays """
+    p[0] = AST.Doubler(p[1], p[3])
+
+
+def p_indexes_2(p):
+    """ indexes : indexes ',' index """
+    p[0] = AST.Doubler(p[1], p[3])
+
+
+def p_indexes_1(p):
+    """ indexes : index"""
+    p[0] = p[1]
 
 
 def p_index(p):
     """ index : INTNUM
               | ID"""
+    p[0] = AST.Basic(p[1])
 
 
-def p_if_instr(p):
+def p_if_instr(p):  # TODO
     """if_instr : IF '(' expression ')' instruction %prec IF_END
                 | IF '(' expression ')' instruction ELSE instruction """
 
 
 def p_while_instr(p):
     """while_instr : WHILE '(' expression ')' instruction """
+    p[0] = AST.While(p[3], p[5])
 
 
 def p_for_instr(p):
     """for_instr : FOR range instruction """
+    p[0] = AST.For(p[2], p[3])
 
 
 def p_range(p):
     """range : ID '=' expression ':' expression """
+    p[0] = AST.Range(p[1], p[3], p[5])
 
 
 def p_break_instr(p):
     """break_instr : BREAK ';' """
+    p[0] = AST.KeyBasic(p[1])
 
 
 def p_continue_instr(p):
     """continue_instr : CONTINUE ';' """
+    p[0] = AST.KeyBasic(p[1])
 
 
-def p_return_instr(p):
-    """return_instr : RETURN expression ';'
-                    | RETURN ';' """
+def p_return_instr_1(p):
+    """return_instr : RETURN ';' """
+    p[0] = AST.KeyBasic(p[1])
+
+
+def p_return_instr_2(p):
+    """return_instr : RETURN expression ';' """
+    p[0] = AST.KeyBasicExtended(p[1], p[2])
 
 
 def p_print_instr(p):
     """print_instr : PRINT printable ';' """
+    p[0] = AST.KeyBasicExtended(p[1], p[2])
 
 
-def p_printable(p):
-    """printable : printable ',' expression
-                 | expression """
+def p_printable_2(p):
+    """printable : printable ',' expression """
+    p[0] = AST.Doubler(p[1], p[3])
+
+
+def p_printable_1(p):
+    """printable : expression """
+    p[0] = p[1]
 
 
 def p_comparison(p):
@@ -119,48 +167,60 @@ def p_comparison(p):
                   | expression GREATER_EQUAL expression
                   | expression NOT_EQUAL expression
                   | expression EQUAL expression """
+    p[0] = AST.BinExpr(p[2], p[1], p[3])
 
 
 # def p_unary(p):
 #     """expression : '-' expression %prec UMINUS"""
+
 
 def p_basic_operations(p):
     """expression : expression '+' expression
                   | expression '-' expression
                   | expression '*' expression
                   | expression '/' expression """
+    p[0] = AST.BinExpr(p[2], p[1], p[3])
 
 
 def p_matrix_operations(p):
     """expression : expression DOTADD expression
                   | expression DOTSUB expression
                   | expression DOTMUL expression
-                  | expression DOTDIV expression
-                  | expression "'" """
+                  | expression DOTDIV expression """
+    p[0] = AST.BinExpr(p[2], p[1], p[3])
+
+
+def p_matrix_transformation(p):
+    """expression : expression "'" """
+    p[0] = AST.Transpose(p[1])
 
 
 def p_matrix_declarations(p):
     """expression : EYE '(' expression ')'
                   | ONES '(' expression ')'
                   | ZEROS '(' expression ')' """
+    p[0] = AST.MatrixDeclarations(p[1], p[3])
 
 
 def p_parentheses(p):
-    """expression : '(' expression ')'
-                  | '(' '-' expression ')' """
+    """expression : '(' expression ')'"""
+    p[0] = p[2]
 
 
 def p_expression_number(p):
     """expression : FLOATNUM
                   | INTNUM """
+    p[0] = AST.Basic(p[1])
 
 
 def p_expression_string(p):
     """expression : STRING """
+    p[0] = AST.Basic(p[1])
 
 
 def p_expression_id(p):
     """expression : ID """
+    p[0] = AST.Basic(p[1])
 
 
 parser = yacc.yacc()

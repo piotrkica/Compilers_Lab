@@ -69,7 +69,6 @@ def t_STRING(t):
         t.value = t.value[3:-3]
     else:
         t.value = t.value[1:-1]
-
     return t
 
 

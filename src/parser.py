@@ -6,10 +6,11 @@ tokens = scanner.tokens
 precedence = (
     ("nonassoc", 'IF_END'),
     ('nonassoc', 'ELSE'),
-    ('left', 'LESSER_THAN', 'GREATER_THAN', 'LESSER_EQUAL', 'GREATER_EQUAL', 'NOT_EQUAL', 'EQUAL'),
     ("right", "=", ":"),
+    ('left', 'LESSER_THAN', 'GREATER_THAN', 'LESSER_EQUAL', 'GREATER_EQUAL', 'NOT_EQUAL', 'EQUAL'),
     ('left', ','),
     ("left", '+', '-'),
+    ('left', 'DOTADD', 'DOTSUB'),  # TODO polaczyc
     ("left", '*', '/'),
     ('left', 'DOTADD', 'DOTSUB'),
     ('left', 'DOTMUL', 'DOTDIV'),
@@ -48,7 +49,6 @@ def p_instruction(p):
 
 def p_assign_instr(p):
     """assign_instr : ID '=' expression ';'
-                    | ID '=' '-' expression ';'
                     | ID PLUSASSIGN expression ';'
                     | ID SUBASSIGN expression ';'
                     | ID MULASSIGN expression ';'
@@ -57,7 +57,7 @@ def p_assign_instr(p):
                     | ID '=' arrays ';' """
 
 
-def p_arrays(p):
+def p_arrays(p):  # TODO
     """arrays :  '[' arrays ']'
               | arrays ',' arrays
               | '[' indexes ']'"""

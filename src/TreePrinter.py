@@ -37,7 +37,7 @@ class TreePrinter:
     @addToClass(AST.AssignInstr)
     def printTree(self, indent=0):
         print("| " * indent + self.op)
-        print("| " + self.left)
+        print("| " * (indent + 1) + self.left)
         self.right.printTree(indent + 1)
 
     @addToClass(AST.Transpose)
@@ -91,6 +91,22 @@ class TreePrinter:
         print("| " * indent + "WHILE")
         self.expr.printTree(indent + 1)
         self.instr.printTree(indent + 1)
+
+    @addToClass(AST.If)
+    def printTree(self, indent=0):
+        print("| " * indent + "IF")
+        self.expr.printTree(indent + 1)
+        print("| " * indent + "THEN")
+        self.instr.printTree(indent + 1)
+
+    @addToClass(AST.IfElse)
+    def printTree(self, indent=0):
+        print("| " * indent + "IF")
+        self.expr.printTree(indent + 1)
+        print("| " * indent + "THEN")
+        self.instr1.printTree(indent + 1)
+        print("| " * indent + "ELSE")
+        self.instr2.printTree(indent + 1)
 
     @addToClass(AST.Error)
     def printTree(self, indent=0):

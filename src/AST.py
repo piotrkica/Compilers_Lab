@@ -87,6 +87,19 @@ class While(Node):
         self.instr = instr
 
 
+class If(Node):
+    def __init__(self, expr, instr):
+        self.expr = expr
+        self.instr = instr
+
+
+class IfElse(Node):
+    def __init__(self, expr, instr1, instr2):
+        self.expr = expr
+        self.instr1 = instr1
+        self.instr2 = instr2
+
+
 class Error(Node):
     def __init__(self):
         pass

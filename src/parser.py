@@ -105,9 +105,14 @@ def p_index(p):
     p[0] = AST.Basic(p[1])
 
 
-def p_if_instr(p):  # TODO
-    """if_instr : IF '(' expression ')' instruction %prec IF_END
-                | IF '(' expression ')' instruction ELSE instruction """
+def p_if_instr(p):
+    """if_instr : IF '(' expression ')' instruction %prec IF_END """
+    p[0] = AST.If(p[3], p[5])
+
+
+def p_if_else_instr(p):
+    """if_instr : IF '(' expression ')' instruction ELSE instruction """
+    p[0] = AST.IfElse(p[3], p[5], p[7])
 
 
 def p_while_instr(p):

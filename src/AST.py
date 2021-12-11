@@ -2,7 +2,7 @@ class Node(object):
     pass
 
 
-class Basic(Node):  # INT, FLOAT, VARIABLE, STRING i wiele innych w jednej klasie?
+class Basic(Node):
     def __init__(self, value):
         self.value = value
 

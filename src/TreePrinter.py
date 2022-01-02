@@ -34,6 +34,13 @@ class TreePrinter:
         self.indexes.printTree(indent + 2)
         self.expr.printTree(indent + 1)
 
+    @addToClass(AST.AssignUnary)
+    def printTree(self, indent=0):
+        print("| " * indent + self.op)
+        print("| " * (indent + 1) + self.id)
+        print("| " * (indent + 2) + '-')
+        self.expr.printTree(indent + 2)
+
     @addToClass(AST.Vector)
     def printTree(self, indent=0):
         print("| " * indent + "VECTOR")

@@ -12,7 +12,6 @@ precedence = (
     ("left", 'DOTADD', 'DOTSUB', '+', '-'),
     ("left", 'DOTMUL', 'DOTDIV', '*', '/'),
     ('left', "'"),
-    # ('right', 'UMINUS')
 )
 
 
@@ -66,7 +65,7 @@ def p_assign_instr(p):
     p[0] = AST.AssignInstr(p[2], p[1], p[3])
 
 
-def p_assign_instr_ref(p):  # rozszerzone
+def p_assign_instr_ref(p):
     """assign_instr : ID '[' indexes ']' '=' expression ';'
                     | ID '[' indexes ']' PLUSASSIGN expression ';'
                     | ID '[' indexes ']' SUBASSIGN expression ';'
@@ -75,8 +74,9 @@ def p_assign_instr_ref(p):  # rozszerzone
     p[0] = AST.AssignInstrRef(p[5], p[1], p[3], p[6])
 
 
-def p_assign_instr_other(p):  # TODO trzeba albo naprawic uminusa albo napisac case dla tego
-    """assign_instr : ID '=' '-' expression ';' """
+def p_assign_instr_other(p):
+    """assign_instr : ID '=' '(' '-' expression ')' ';' """
+    p[0] = AST.AssignUnary(p[2], p[1], p[5])
 
 
 def p_arrays_1(p):
@@ -86,17 +86,12 @@ def p_arrays_1(p):
 
 
 def p_subarrays_2(p):
-    """subarrays : subarrays ',' subarray"""
+    """subarrays : subarrays ',' array"""
     p[0] = AST.SubarrayDoubler(p[1], p[3])
 
 
 def p_subarrays_1(p):
-    """subarrays : subarray """
-    p[0] = p[1]
-
-
-def p_subarray(p):
-    """subarray : array """
+    """subarrays : array """
     p[0] = p[1]
 
 
@@ -113,6 +108,7 @@ def p_indexes_1(p):
 def p_index_int(p):
     """ index : INTNUM """
     p[0] = AST.IntNum(p[1])
+
 
 def p_index_id(p):
     """ index : ID """
@@ -187,10 +183,6 @@ def p_comparison(p):
                   | expression NOT_EQUAL expression
                   | expression EQUAL expression """
     p[0] = AST.BinExpr(p[2], p[1], p[3])
-
-
-# def p_unary(p):
-#     """expression : '-' expression %prec UMINUS"""
 
 
 def p_basic_operations(p):

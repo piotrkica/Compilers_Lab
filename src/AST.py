@@ -23,6 +23,13 @@ class AssignInstrRef(Node):
         self.expr = expr
 
 
+class AssignUnary(Node):
+    def __init__(self, op, id, expr):
+        self.op = op
+        self.id = id
+        self.expr = expr
+
+
 class Vector(Node):
     def __init__(self, vector):
         self.vector = vector

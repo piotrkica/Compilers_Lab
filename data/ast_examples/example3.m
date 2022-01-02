@@ -13,8 +13,8 @@ while(k>0) {
         i = 1;
     else if(k<10)
         i = 2;   
-    else
-        i = 3;
+    else if(k>20)  # dodanie breaka
+        break;
     
     k = k - 1;
 }

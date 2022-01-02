@@ -10,11 +10,9 @@ precedence = (
     ("right", "=", ":"),
     ('left', 'LESSER_THAN', 'GREATER_THAN', 'LESSER_EQUAL', 'GREATER_EQUAL', 'NOT_EQUAL', 'EQUAL'),
     ('left', ','),
-    ("left", '+', '-'),
-    ('left', 'DOTADD', 'DOTSUB'),  # TODO polaczyc
-    ("left", '*', '/'),
-    ('left', 'DOTMUL', 'DOTDIV'),
-    ('left', "'"),  # dodalem
+    ("left", 'DOTADD', 'DOTSUB', '+', '-'),
+    ("left", 'DOTMUL', 'DOTDIV', '*', '/'),
+    ('left', "'"),
     # ('right', 'UMINUS')
 )
 
@@ -65,7 +63,7 @@ def p_assign_instr(p):
                     | ID SUBASSIGN expression ';'
                     | ID MULASSIGN expression ';'
                     | ID DIVASSIGN expression ';'
-                    | ID '=' arrays ';' """
+                    | ID '=' array ';' """
     p[0] = AST.AssignInstr(p[2], p[1], p[3])
 
 
@@ -79,14 +77,18 @@ def p_assign_instr_other(p):  # TODO trzeba albo naprawic uminusa albo napisac c
 
 
 def p_arrays_1(p):
-    """arrays : '[' arrays ']'
+    """array : '[' subarrays ']'
               | '[' indexes ']' """
     p[0] = AST.Vector(p[2])
 
 
-def p_arrays_2(p):  # TODO trzeba usunac takie dublowanie
-    """arrays : arrays ',' arrays """
-    p[0] = AST.Doubler(p[1], p[3])
+def p_subarrays(p):
+    """subarrays : subarrays ',' subarray
+                 | array """
+
+
+def p_subarray(p):
+    """subarray : array """
 
 
 def p_indexes_2(p):

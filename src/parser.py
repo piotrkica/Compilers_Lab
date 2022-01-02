@@ -9,7 +9,6 @@ precedence = (
     ('nonassoc', 'ELSE'),
     ("right", "=", ":"),
     ('left', 'LESSER_THAN', 'GREATER_THAN', 'LESSER_EQUAL', 'GREATER_EQUAL', 'NOT_EQUAL', 'EQUAL'),
-    ('left', ','),
     ("left", 'DOTADD', 'DOTSUB', '+', '-'),
     ("left", 'DOTMUL', 'DOTDIV', '*', '/'),
     ('left', "'"),
@@ -82,13 +81,19 @@ def p_arrays_1(p):
     p[0] = AST.Vector(p[2])
 
 
-def p_subarrays(p):
-    """subarrays : subarrays ',' subarray
-                 | array """
+def p_subarrays_2(p):
+    """subarrays : subarrays ',' subarray"""
+    p[0] = AST.Doubler(p[1], p[3])
+
+
+def p_subarrays_1(p):
+    """subarrays : subarray """
+    p[0] = p[1]
 
 
 def p_subarray(p):
     """subarray : array """
+    p[0] = p[1]
 
 
 def p_indexes_2(p):

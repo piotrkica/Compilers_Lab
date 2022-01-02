@@ -86,24 +86,24 @@ class TreePrinter:
 
     @addToClass(AST.Break)
     def printTree(self, indent=0):
-        print("| " * indent + self.value.upper())
+        print("| " * indent + "BREAK")
 
     @addToClass(AST.Continue)
     def printTree(self, indent=0):
-        print("| " * indent + self.value.upper())
+        print("| " * indent + "CONTINUE")
 
     @addToClass(AST.Return)
     def printTree(self, indent=0):
-        print("| " * indent + self.value.upper())
+        print("| " * indent + "RETURN")
 
     @addToClass(AST.ReturnExpression)
     def printTree(self, indent=0):
-        print("| " * indent + self.value.upper())
+        print("| " * indent + "RETURN")
         self.expr.printTree(indent + 1)
 
     @addToClass(AST.Print)
     def printTree(self, indent=0):
-        print("| " * indent + self.value.upper())
+        print("| " * indent + "PRINT")
         self.expr.printTree(indent + 1)
 
     @addToClass(AST.PrintDoubler)

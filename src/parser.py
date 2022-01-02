@@ -146,27 +146,27 @@ def p_range(p):
 
 def p_break_instr(p):
     """break_instr : BREAK ';' """
-    p[0] = AST.Break(p[1])
+    p[0] = AST.Break()
 
 
 def p_continue_instr(p):
     """continue_instr : CONTINUE ';' """
-    p[0] = AST.Continue(p[1])
+    p[0] = AST.Continue()
 
 
 def p_return_instr_1(p):
     """return_instr : RETURN ';' """
-    p[0] = AST.Return(p[1])
+    p[0] = AST.Return()
 
 
 def p_return_instr_2(p):
     """return_instr : RETURN expression ';' """
-    p[0] = AST.ReturnExpression(p[1], p[2])
+    p[0] = AST.ReturnExpression(p[2])
 
 
 def p_print_instr(p):
     """print_instr : PRINT printable ';' """
-    p[0] = AST.Print(p[1], p[2])
+    p[0] = AST.Print(p[2])
 
 
 def p_printable_2(p):

@@ -73,29 +73,24 @@ class Range(Node):
 
 
 class Break(Node):
-    def __init__(self, value):
-        self.value = value
+    pass
 
 
 class Continue(Node):
-    def __init__(self, value):
-        self.value = value
+    pass
 
 
 class Return(Node):
-    def __init__(self, value):
-        self.value = value
+    pass
 
 
 class ReturnExpression(Node):
-    def __init__(self, value, expr):
-        self.value = value
+    def __init__(self, expr):
         self.expr = expr
 
 
 class Print(Node):
-    def __init__(self, value, expr):
-        self.value = value
+    def __init__(self, expr):
         self.expr = expr
 
 

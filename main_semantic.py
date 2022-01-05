@@ -16,6 +16,6 @@ if __name__ == '__main__':
     text = file.read()
     ast = parser.parse(text, lexer=lexer)
 
-    # Below code shows how to use visitor
     typeChecker = TypeChecker()
     typeChecker.visit(ast)
+    typeChecker.print_errors()

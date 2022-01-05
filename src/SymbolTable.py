@@ -4,6 +4,12 @@ class SymbolTable(object):
         self.name = name
         self.symbols = {}
 
+    def __getitem__(self, key):
+        return self.symbols[key]
+
+    def __setitem__(self, key, value):
+        self.symbols[key] = value
+
     def put(self, name, symbol):  # put variable symbol under <name> entry
         self.symbols[name] = symbol
 

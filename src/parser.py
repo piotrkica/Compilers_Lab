@@ -37,7 +37,7 @@ def p_instructions_1(p):
     p[0] = p[1]
 
 
-def p_instruction(p):
+def p_instruction(p):  # TODO check ';' after print's end and other statements
     """instruction : assign_instr
                    | if_instr
                    | while_instr
@@ -50,7 +50,7 @@ def p_instruction(p):
     p[0] = p[1]
 
 
-def p_instruction_in(p):
+def p_instruction_braces(p):
     """instruction : '{' instructions '}' """
     p[0] = p[2]
 
@@ -62,7 +62,7 @@ def p_assign_instr(p):
                     | ID MULASSIGN expression ';'
                     | ID DIVASSIGN expression ';'
                     | ID '=' array ';' """
-    p[0] = AST.AssignInstr(p[2], p[1], p[3])
+    p[0] = AST.AssignInstr(p[2], AST.ID(p[1]), p[3])
 
 
 def p_assign_instr_ref(p):
@@ -71,12 +71,12 @@ def p_assign_instr_ref(p):
                     | ID '[' indexes ']' SUBASSIGN expression ';'
                     | ID '[' indexes ']' MULASSIGN expression ';'
                     | ID '[' indexes ']' DIVASSIGN expression ';' """
-    p[0] = AST.AssignInstrRef(p[5], p[1], p[3], p[6])
+    p[0] = AST.AssignInstrRef(p[5], AST.ID(p[1]), p[3], p[6])
 
 
-def p_assign_instr_other(p):
+def p_assign_unary(p):
     """assign_instr : ID '=' '(' '-' expression ')' ';' """
-    p[0] = AST.AssignUnary(p[2], p[1], p[5])
+    p[0] = AST.AssignUnary(p[2], AST.ID(p[1]), p[5])
 
 
 def p_arrays_1(p):
@@ -137,7 +137,7 @@ def p_for_instr(p):
 
 def p_range(p):
     """range : ID '=' expression ':' expression """
-    p[0] = AST.Range(p[1], p[3], p[5])
+    p[0] = AST.Range(AST.ID(p[1]), p[3], p[5])
 
 
 def p_break_instr(p):

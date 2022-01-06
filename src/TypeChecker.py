@@ -21,8 +21,10 @@ for oper in ['>', '>=', '==', "!=", '<=', "<"]:
     type_map[oper]["float"]["int"] = "bool"
     type_map[oper]["float"]["float"] = "bool"
 
-for oper in ['==', "!=", '+']:
-    type_map[oper]["str"]["str"] = "str"
+for oper in ['==', "!="]:
+    type_map[oper]["str"]["str"] = "bool"
+
+type_map["+"]["str"]["str"] = "str"
 
 
 @dataclass

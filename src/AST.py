@@ -18,6 +18,15 @@ class AssignInstr(Node):
         super().__init__(lineno)
 
 
+class AssignInstrVector(Node):
+    def __init__(self, op, left, name, indexes, lineno):
+        self.op = op
+        self.left = left
+        self.name = name
+        self.indexes = indexes
+        super().__init__(lineno)
+
+
 class AssignInstrRef(Node):
     def __init__(self, op, id, indexes, expr, lineno):
         self.op = op
@@ -149,9 +158,9 @@ class Transpose(Node):
 
 
 class MatrixDeclarations(Node):
-    def __init__(self, key_word, expr, lineno):
+    def __init__(self, key_word, indexes, lineno):
         self.key_word = key_word
-        self.expr = expr
+        self.indexes = indexes
         super().__init__(lineno)
 
 

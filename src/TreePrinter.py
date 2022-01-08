@@ -26,6 +26,14 @@ class TreePrinter:
         print("| " * (indent + 1) + self.left.value)
         self.right.printTree(indent + 1)
 
+    @addToClass(AST.AssignInstrVector)
+    def printTree(self, indent=0):
+        print("| " * indent + self.op)
+        print("| " * (indent + 1) + self.left.value)
+        print("| " * (indent + 1) + "REF")
+        print("| " * (indent + 2) + self.name.value)
+        self.indexes.printTree(indent + 2)
+
     @addToClass(AST.AssignInstrRef)
     def printTree(self, indent=0):
         print("| " * indent + self.op)
@@ -138,7 +146,7 @@ class TreePrinter:
     @addToClass(AST.MatrixDeclarations)
     def printTree(self, indent=0):
         print("| " * indent + self.key_word)
-        self.expr.printTree(indent + 1)
+        self.indexes.printTree(indent + 1)
 
     @addToClass(AST.IntNum)
     def printTree(self, indent=0):

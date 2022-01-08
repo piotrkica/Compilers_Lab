@@ -65,6 +65,15 @@ def p_assign_instr(p):
     p[0] = AST.AssignInstr(p[2], AST.ID(p[1], p.lineno(1)), p[3], p.lineno(1))
 
 
+def p_assing_instr_vector(p):
+    """assign_instr : ID '=' ID '[' indexes ']' ';'
+                    | ID PLUSASSIGN ID '[' indexes ']' ';'
+                    | ID SUBASSIGN ID '[' indexes ']' ';'
+                    | ID MULASSIGN ID '[' indexes ']' ';'
+                    | ID DIVASSIGN ID '[' indexes ']' ';'"""
+    p[0] = AST.AssignInstrVector(p[2], AST.ID(p[1], p.lineno(1)), AST.ID(p[3], p.lineno(1)), p[5], p.lineno(1))
+
+
 def p_assign_instr_ref(p):
     """assign_instr : ID '[' indexes ']' '=' expression ';'
                     | ID '[' indexes ']' PLUSASSIGN expression ';'
@@ -207,9 +216,9 @@ def p_matrix_transformation(p):
 
 
 def p_matrix_declarations(p):
-    """expression : EYE '(' expression ')'
-                  | ONES '(' expression ')'
-                  | ZEROS '(' expression ')' """
+    """expression : EYE '(' indexes ')'
+                  | ONES '(' indexes ')'
+                  | ZEROS '(' indexes ')' """
     p[0] = AST.MatrixDeclarations(p[1], p[3], p.lineno(1))
 
 

@@ -1,13 +1,13 @@
 import sys
 import ply.yacc as yacc
-from src.scanner import lexer
 from src.parser import parser
-from src.TreePrinter import TreePrinter
+from src.scanner import lexer
+from src.TypeChecker import TypeChecker
 
 if __name__ == '__main__':
 
     try:
-        filename = sys.argv[1] if len(sys.argv) > 1 else "data/ast_examples/example1.m"
+        filename = sys.argv[1] if len(sys.argv) > 1 else "data/semantic_examples/opers.m"
         file = open(filename, "r")
     except IOError:
         print("Cannot open {0} file".format(filename))
@@ -15,4 +15,7 @@ if __name__ == '__main__':
 
     text = file.read()
     ast = parser.parse(text, lexer=lexer)
-    ast.printTree()
+
+    typeChecker = TypeChecker()
+    typeChecker.visit(ast)
+    typeChecker.print_errors()

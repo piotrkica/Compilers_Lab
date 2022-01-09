@@ -49,7 +49,6 @@ class NodeVisitor(object):
     def visit(self, node):
         method = 'visit_' + node.__class__.__name__
         visitor = getattr(self, method, self.generic_visit)
-        print("visiting method: " + method)
         return visitor(node)
 
     def generic_visit(self, node):  # Called if no explicit visitor function exists for a node.
@@ -69,7 +68,6 @@ class NodeVisitor(object):
 class TypeChecker(NodeVisitor):
     def visit_InstructionDoubler(self, node):
         self.visit(node.left)
-        print()
         self.visit(node.right)
 
     def visit_AssignInstr(self, node):
@@ -81,7 +79,6 @@ class TypeChecker(NodeVisitor):
                 self.errors.append(f"Missing right side symbol in assignment: line={node.lineno}")
             else:
                 self.symbol_table.put(node.left.value, type_right)
-            print(self.symbol_table.symbols.items())
         else:
             if node.left.value not in self.symbol_table.symbols:
                 self.errors.append(f"Missing symbol in line {node.lineno}")
@@ -146,7 +143,6 @@ class TypeChecker(NodeVisitor):
                 else:
                     self.errors.append(f"Wrong reference type: line={node.lineno}")
                     return
-                print(indexes_list)
                 type_array = self.symbol_table[node.id.value]
                 array_sizes = [type_array.size]
                 while isinstance(type_array.elem_type, Array):  # get array sizes down the matrix to compare

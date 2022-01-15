@@ -22,16 +22,16 @@ class MemoryStack:
     def get(self, name):  # gets from memory stack current value of variable <name>
         for memory in reversed(self.memoryStack):
             if memory.has_key(name):
-                return memory[name]
+                return memory.get(name)
         return None
 
     def insert(self, name, value):  # inserts into memory stack variable <name> with value <value>
-        self.memoryStack[-1][name] = value
+        self.memoryStack[-1].put(name, value)
 
     def set(self, name, value):  # sets variable <name> to value <value>
         for memory in reversed(self.memoryStack):
             if memory.has_key(name):
-                memory[name] = value
+                memory.put(name, value)
                 return
 
     def push(self, memory):  # pushes memory <memory> onto the stack

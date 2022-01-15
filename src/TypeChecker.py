@@ -110,12 +110,12 @@ class TypeChecker(NodeVisitor):
                 tmp_node = node.indexes
                 tmp_array = self.symbol_table[node.name.name]
                 while size > 1:
-                    if tmp_node.right.name >= tmp_array.size:
+                    if tmp_node.right.value >= tmp_array.size:
                         self.errors.append(f"Index out of range: line={node.lineno}")
                     tmp_node = tmp_node.left
                     tmp_array = tmp_array.elem_type
                     size -= 1
-                if tmp_node.name >= tmp_array.size:
+                if tmp_node.value >= tmp_array.size:
                     self.errors.append(f"Index out of range: line={node.lineno}")
 
     def visit_AssignInstrRef(self, node):
@@ -135,10 +135,10 @@ class TypeChecker(NodeVisitor):
                     indexes_list = []  # list of indexes
                     curr_index = node.indexes
                     while isinstance(curr_index, AST.IndexDoubler):
-                        indexes_list.append(curr_index.right.name)
+                        indexes_list.append(curr_index.right.value)
                         curr_index = curr_index.left
                         if not isinstance(curr_index, AST.IndexDoubler):
-                            indexes_list.append(curr_index.name)
+                            indexes_list.append(curr_index.value)
                     indexes_list = indexes_list[::-1]  # left-recursion in IndexDouble -> reverse
                 else:
                     self.errors.append(f"Wrong reference type: line={node.lineno}")
@@ -294,7 +294,7 @@ class TypeChecker(NodeVisitor):
         else:
             indexes = node.indexes
             if isinstance(indexes, AST.IntNum):
-                size = indexes.name
+                size = indexes.value
                 return Array(size, Array(size, "int", 1), 2)
             else:
                 array = "int"

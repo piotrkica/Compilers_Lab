@@ -2,6 +2,9 @@ class Node(object):
     def __init__(self, lineno):
         self.lineno = lineno
 
+    def accept(self, visitor):
+        visitor.visit(self)
+
 
 class InstructionDoubler(Node):
     def __init__(self, left, right, lineno):
@@ -165,20 +168,20 @@ class MatrixDeclarations(Node):
 
 
 class IntNum(Node):
-    def __init__(self, name, lineno):
-        self.name = name
+    def __init__(self, value, lineno):
+        self.value = value
         super().__init__(lineno)
 
 
 class FloatNum(Node):
-    def __init__(self, name, lineno):
-        self.name = name
+    def __init__(self, value, lineno):
+        self.value = value
         super().__init__(lineno)
 
 
 class String(Node):
-    def __init__(self, name, lineno):
-        self.name = name
+    def __init__(self, value, lineno):
+        self.value = value
         super().__init__(lineno)
 
 

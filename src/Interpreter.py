@@ -23,11 +23,14 @@ class Interpreter(object):
     @when(AST.AssignInstr)
     def visit(self, node):
         if node.op == '=':
-            Interpreter.memory.insert(node.left.name, self.visit(node.right))
+            if Interpreter.memory.get(node.left.name) is None:
+                Interpreter.memory.insert(node.left.name, self.visit(node.right))
+            else:
+                Interpreter.memory.set(node.left.name, self.visit(node.right))
         else:
             value = Interpreter.memory.get(node.left.name)
             right = self.visit(node.right)
-            if node.op == "+=":
+            if node.op == "+=":  # TODO poprawic
                 value += right
             elif node.op == "-=":
                 value -= right
@@ -40,11 +43,14 @@ class Interpreter(object):
     @when(AST.AssignInstrVector)
     def visit(self, node):
         if node.op == '=':
-            Interpreter.memory.insert(node.left.name, self.visit(node.right))
+            if Interpreter.memory.get(node.left.name) is None:
+                Interpreter.memory.insert(node.left.name, self.visit(node.right))
+            else:
+                Interpreter.memory.set(node.left.name, self.visit(node.right))
         else:
             value = Interpreter.memory.get(node.left.name)
             right = self.visit(node.right)
-            if node.op == "+=":
+            if node.op == "+=":  # TODO poprawic
                 value += right
             elif node.op == "-=":
                 value -= right
@@ -97,11 +103,19 @@ class Interpreter(object):
 
     @when(AST.For)
     def visit(self, node):
-        pass
+        Interpreter.memory.push(Memory("For"))
+        (name, start, stop) = self.visit(node.range)
+        for _ in range(start, stop):  # TODO moze na while z pozwoleniem modyfikacji zmiennej sterujacej
+            self.visit(node.instr)
+            Interpreter.memory.set(name, Interpreter.memory.get(name)+1)
+        Interpreter.memory.pop()
 
     @when(AST.Range)
     def visit(self, node):
-        pass
+        start = self.visit(node.expr1)
+        stop = self.visit(node.expr2)
+        Interpreter.memory.insert(node.id.name, start)
+        return (node.id.name, start, stop)
 
     @when(AST.Break)
     def visit(self, node):
@@ -133,7 +147,7 @@ class Interpreter(object):
     def visit(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
-        if node.op == "+":
+        if node.op == "+":  # TODO poprawic
             return left + right
         elif node.op == "-":
             return left - right
@@ -141,6 +155,18 @@ class Interpreter(object):
             return left * right
         elif node.op == "/":
             return left / right
+        elif node.op == "<":
+            return left < right
+        elif node.op == ">":
+            return left > right
+        elif node.op == "<=":
+            return left <= right
+        elif node.op == ">=":
+            return left >= right
+        elif node.op == "!=":
+            return left != right
+        elif node.op == "==":
+            return left == right
 
     @when(AST.MatrixBinExpr)
     def visit(self, node):

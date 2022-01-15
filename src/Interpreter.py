@@ -1,40 +1,144 @@
-
 import AST
 import SymbolTable
 from Memory import *
-from Exceptions import  *
+from Exceptions import *
 from visit import *
 import sys
 
 sys.setrecursionlimit(10000)
 
-class Interpreter(object):
 
+class Interpreter(object):
+    memory = MemoryStack(Memory("GlobalMemory"))
 
     @on('node')
     def visit(self, node):
         pass
 
-    @when(AST.BinOp)
+    @when(AST.InstructionDoubler)
     def visit(self, node):
-        r1 = node.left.accept(self)
-        r2 = node.right.accept(self)
-        # try sth smarter than:
-        # if(node.op=='+') return r1+r2
-        # elsif(node.op=='-') ...
-        # but do not use python eval
+        self.visit(node.left)
+        self.visit(node.right)
 
-    @when(AST.Assignment)
+    @when(AST.AssignInstr)
     def visit(self, node):
-    #
-    #
+        if node.op == '=':
+            Interpreter.memory.insert(node.left.name, self.visit(node.right))
+        else:
+            value = Interpreter.memory.get(node.left.name)
+            right = self.visit(node.right)
+            if node.op == "+=":
+                value += right
+            elif node.op == "-=":
+                value -= right
+            elif node.op == "*=":
+                value *= right
+            elif node.op == "/=":
+                value /= right
+            Interpreter.memory.set(node.left.name, value)
 
-    # simplistic while loop interpretation
-    @when(AST.WhileInstr)
+    @when(AST.AssignInstrVector)
     def visit(self, node):
-        r = None
-        while node.cond.accept(self):
-            r = node.body.accept(self)
-        return r
+        pass
+
+    @when(AST.AssignInstrRef)
+    def visit(self, node):
+        pass
+
+    @when(AST.AssignUnary)
+    def visit(self, node):
+        pass
+
+    @when(AST.Vector)
+    def visit(self, node):
+        pass
+
+    @when(AST.SubarrayDoubler)
+    def visit(self, node):
+        pass
+
+    @when(AST.IndexDoubler)
+    def visit(self, node):
+        pass
+
+    @when(AST.If)
+    def visit(self, node):
+        pass
+
+    @when(AST.IfElse)
+    def visit(self, node):
+        pass
+
+    @when(AST.While)
+    def visit(self, node):
+        pass
+
+    @when(AST.For)
+    def visit(self, node):
+        pass
+
+    @when(AST.Range)
+    def visit(self, node):
+        pass
+
+    @when(AST.Break)
+    def visit(self, node):
+        pass
+
+    @when(AST.Continue)
+    def visit(self, node):
+        pass
+
+    @when(AST.Return)
+    def visit(self, node):
+        pass
+
+    @when(AST.ReturnExpression)
+    def visit(self, node):
+        pass
+
+    @when(AST.Print)
+    def visit(self, node):
+        pass
+
+    @when(AST.PrintDoubler)
+    def visit(self, node):
+        pass
+
+    @when(AST.BinExpr)
+    def visit(self, node):
+        pass
+
+    @when(AST.MatrixBinExpr)
+    def visit(self, node):
+        pass
+
+    @when(AST.Transpose)
+    def visit(self, node):
+        pass
+
+    @when(AST.MatrixDeclarations)
+    def visit(self, node):
+        pass
+
+    @when(AST.IntNum)
+    def visit(self, node):
+        pass
+
+    @when(AST.FloatNum)
+    def visit(self, node):
+        pass
+
+    @when(AST.String)
+    def visit(self, node):
+        pass
+
+    @when(AST.ID)
+    def visit(self, node):
+        pass
+
+    @when(AST.Error)
+    def visit(self, node):
+        pass
 
 

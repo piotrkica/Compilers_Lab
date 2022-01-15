@@ -165,26 +165,26 @@ class MatrixDeclarations(Node):
 
 
 class IntNum(Node):
-    def __init__(self, value, lineno):
-        self.value = value
+    def __init__(self, name, lineno):
+        self.name = name
         super().__init__(lineno)
 
 
 class FloatNum(Node):
-    def __init__(self, value, lineno):
-        self.value = value
+    def __init__(self, name, lineno):
+        self.name = name
         super().__init__(lineno)
 
 
 class String(Node):
-    def __init__(self, value, lineno):
-        self.value = value
+    def __init__(self, name, lineno):
+        self.name = name
         super().__init__(lineno)
 
 
 class ID(Node):
-    def __init__(self, value, lineno):
-        self.value = value
+    def __init__(self, name, lineno):
+        self.name = name
         super().__init__(lineno)
 
 

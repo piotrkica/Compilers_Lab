@@ -37,7 +37,7 @@ def p_instructions_1(p):
     p[0] = p[1]
 
 
-def p_instruction(p):  # TODO check ';' after print's end and other statements
+def p_instruction(p):
     """instruction : assign_instr
                    | if_instr
                    | while_instr

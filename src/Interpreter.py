@@ -153,14 +153,25 @@ class Interpreter(object):
     @when(AST.While)
     def visit(self, node):
         while self.visit(node.expr):
-            self.visit(node.instr)
+            try:
+                self.visit(node.instr)
+            except BreakException:
+                break
+            except ContinueException:
+                continue
 
     @when(AST.For)
     def visit(self, node):
         Interpreter.memory.push(Memory("For"))
         (name, start, stop) = self.visit(node.range)
         for _ in range(start, stop):  # TODO moze na while z pozwoleniem modyfikacji zmiennej sterujacej
-            self.visit(node.instr)
+            try:
+                self.visit(node.instr)
+            except BreakException:
+                break
+            except ContinueException:
+                Interpreter.memory.set(name, Interpreter.memory.get(name) + 1)
+                continue
             Interpreter.memory.set(name, Interpreter.memory.get(name)+1)
         Interpreter.memory.pop()
 
@@ -173,19 +184,19 @@ class Interpreter(object):
 
     @when(AST.Break)
     def visit(self, node):
-        pass
+        raise BreakException()
 
     @when(AST.Continue)
     def visit(self, node):
-        pass
+        raise ContinueException()
 
     @when(AST.Return)
     def visit(self, node):
-        pass
+        raise ReturnValueException(node.expr)
 
     @when(AST.ReturnExpression)
     def visit(self, node):
-        pass
+        raise ReturnException()
 
     @when(AST.Print)
     def visit(self, node):

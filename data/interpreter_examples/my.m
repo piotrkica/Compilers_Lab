@@ -1,4 +1,7 @@
-x = zeros(3);
-print x;
-x[0:2,0:2] = 1;
-print x;
+x =0;
+for i = 0:10{
+    if (i==2){
+        continue;
+    }
+    print i;
+}

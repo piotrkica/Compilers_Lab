@@ -4,6 +4,7 @@ from src.Memory import *
 from src.Exceptions import *
 from src.visit import *
 import sys
+import copy
 
 sys.setrecursionlimit(10000)
 
@@ -62,22 +63,48 @@ class Interpreter(object):
 
     @when(AST.AssignInstrRef)
     def visit(self, node):
-        pass
+        (T, indexex) = self.visit(node.ref)
+        indexes = [[]]
+        while len(indexex) > 0:
+            tmp = []
+            for list_index in indexes:
+                if isinstance(indexex[-1], tuple):
+                    (start, stop) = indexex[-1]
+                    for i in range(start, stop):
+                        tmp.append(list_index + [i])
+                else:
+                    tmp.append(list_index + [indexex[-1]])
+            indexex.pop()
+            indexes = tmp
+        value = self.visit(node.expr)
+        for list_index in indexes:
+            T = Interpreter.memory.get(node.ref.id.name)
+            while len(list_index) > 1:
+                T = T[list_index[-1]]
+                list_index.pop()
+            if node.op == "=":  # TODO poprawic
+                T[list_index[-1]] = value
+            elif node.op == "+=":
+                T[list_index[-1]] += value
+            elif node.op == "-=":
+                T[list_index[-1]] -= value
+            elif node.op == "*=":
+                T[list_index[-1]] *= value
+            elif node.op == "/=":
+                T[list_index[-1]] /= value
 
     @when(AST.ArrayRef)
     def visit(self, node):
         indexes = self.visit(node.indexes)
-        indexes = list(reversed(indexes))
         T = Interpreter.memory.get(node.id.name)
-        while len(indexes) > 1:
-            index = indexes.pop()
-            T = T[index]
-        index = indexes.pop()
-        return (T, index)
+        return (T, indexes)
 
     @when(AST.AssignUnary)
     def visit(self, node):
-        pass
+        if Interpreter.memory.get(node.id.name) is None:
+            Interpreter.memory.insert(node.id.name, -self.visit(node.expr))
+        else:
+            Interpreter.memory.set(node.id.name, -self.visit(node.expr))
 
     @when(AST.Vector)
     def visit(self, node):
@@ -102,6 +129,12 @@ class Interpreter(object):
         else:
             indexes = [left] + [right]
         return indexes
+
+    @when(AST.IndexRange)
+    def visit(self, node):
+        start = self.visit(node.left)
+        stop = self.visit(node.right)
+        return (start, stop)
 
     @when(AST.If)
     def visit(self, node):
@@ -156,7 +189,14 @@ class Interpreter(object):
 
     @when(AST.Print)
     def visit(self, node):
-        print(self.visit(node.expr))
+        if isinstance(self.visit(node.expr), tuple):
+            (T, indexes) = self.visit(node.expr)
+            while len(indexes) > 0:
+                T = T[indexes[-1]]
+                indexes.pop()
+            print(T)
+        else:
+            print(self.visit(node.expr))
 
     @when(AST.PrintDoubler)
     def visit(self, node):
@@ -189,17 +229,68 @@ class Interpreter(object):
         elif node.op == "==":
             return left == right
 
-    @when(AST.MatrixBinExpr)
+    @when(AST.MatrixBinExpr)  # TODO tylko dla 2
     def visit(self, node):
-        pass
+        L = self.visit(node.left)
+        R = self.visit(node.right)
+        tmp = copy.deepcopy(L)
+        for i in range(len(L)):
+            for j in range(len(L[0])):
+                if node.op == ".+":  # TODO poprawic
+                    tmp[i][j] = L[i][j] + R[i][j]
+                elif node.op == ".-":
+                    tmp[i][j] = L[i][j] - R[i][j]
+                elif node.op == ".*":
+                    tmp[i][j] = L[i][j] * R[i][j]
+                elif node.op == "./":
+                    tmp[i][j] = L[i][j] / R[i][j]
+        return tmp
 
-    @when(AST.Transpose)
+    @when(AST.Transpose)  # TODO tylko dla 2
     def visit(self, node):
-        pass
+        M = Interpreter.memory.get(node.left.name)
+        rows = len(M)
+        cols = len(M[0])
+        T = [[0 for _ in range(rows)] for _ in range(cols)]
+        for i in range(rows):
+            for j in range(cols):
+                T[j][i] = M[i][j]
+        return T
 
     @when(AST.MatrixDeclarations)
-    def visit(self, node):
-        pass
+    def visit(self, node):  # TODO eye do wymiaru 2
+        indexes = self.visit(node.indexes)
+        T = None
+        if isinstance(indexes, int):
+            if node.key_word == "eye":
+                T = [[0 for _ in range(indexes)] for _ in range(indexes)]
+                for i in range(indexes):
+                    T[i][i] = 1
+            elif node.key_word == "ones":
+                T = [[1 for _ in range(indexes)] for _ in range(indexes)]
+            elif node.key_word == "zeros":
+                T = [[0 for _ in range(indexes)] for _ in range(indexes)]
+        else:
+            indexes = list(reversed(indexes))
+            if node.key_word == "eye":
+                T = [[0 for _ in range(indexes[0])] for _ in range(indexes[1])]
+                for i in range(min(indexes[0], indexes[1])):
+                    T[i][i] = 1
+            elif node.key_word == "ones":
+                T = 1
+                for size in indexes:
+                    tmp = []
+                    for _ in range(size):
+                        tmp.append(copy.deepcopy(T))
+                    T = copy.deepcopy(tmp)
+            elif node.key_word == "zeros":
+                T = 0
+                for size in indexes:
+                    tmp = []
+                    for _ in range(size):
+                        tmp.append(copy.deepcopy(T))
+                    T = copy.deepcopy(tmp)
+        return T
 
     @when(AST.IntNum)
     def visit(self, node):

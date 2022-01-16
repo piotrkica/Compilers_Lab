@@ -185,6 +185,13 @@ class TypeChecker(NodeVisitor):
         type_right = self.visit(node.right)
         if type_left != "int" or type_right != "int":
             self.errors.append(f"Wrong index type: line={node.lineno}")
+        return "int"
+
+    def visit_IndexRange(self, node):
+        type_left = self.visit(node.left)
+        type_right = self.visit(node.right)
+        if type_left != "int" or type_right != "int":
+            self.errors.append(f"Wrong index type: line={node.lineno}")
             print(f"Wrong index type: line={node.lineno}")
         return "int"
 

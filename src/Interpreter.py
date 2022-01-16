@@ -9,13 +9,13 @@ sys.setrecursionlimit(10000)
 
 
 class Interpreter(object):
-    memory = MemoryStack(Memory("GlobalMemory"))
+    memory = MemoryStack(Memory("GlobalMemory"))  # TODO taka pamiec?
 
     @on('node')
     def visit(self, node):
         pass
 
-    @when(AST.InstructionDoubler)
+    @when(AST.InstructionDoubler)  # TODO self.visit vs self.accept
     def visit(self, node):
         self.visit(node.left)
         self.visit(node.right)
@@ -64,23 +64,44 @@ class Interpreter(object):
     def visit(self, node):
         pass
 
+    @when(AST.ArrayRef)
+    def visit(self, node):
+        indexes = self.visit(node.indexes)
+        indexes = list(reversed(indexes))
+        T = Interpreter.memory.get(node.id.name)
+        while len(indexes) > 1:
+            index = indexes.pop()
+            T = T[index]
+        index = indexes.pop()
+        return (T, index)
+
     @when(AST.AssignUnary)
     def visit(self, node):
         pass
 
     @when(AST.Vector)
     def visit(self, node):
-        pass
+        return self.visit(node.vector)
 
     @when(AST.SubarrayDoubler)
     def visit(self, node):
-        pass
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        if isinstance(node.left, AST.SubarrayDoubler):
+            arrays = left + [right]
+        else:
+            arrays = [left] + [right]
+        return arrays
 
     @when(AST.IndexDoubler)
     def visit(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
-        return left + [right]
+        if isinstance(left, list):
+            indexes = left + [right]
+        else:
+            indexes = [left] + [right]
+        return indexes
 
     @when(AST.If)
     def visit(self, node):

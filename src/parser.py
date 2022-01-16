@@ -66,21 +66,26 @@ def p_assign_instr(p):
 
 
 def p_assing_instr_vector(p):
-    """assign_instr : ID '=' ID '[' indexes ']' ';'
-                    | ID PLUSASSIGN ID '[' indexes ']' ';'
-                    | ID SUBASSIGN ID '[' indexes ']' ';'
-                    | ID MULASSIGN ID '[' indexes ']' ';'
-                    | ID DIVASSIGN ID '[' indexes ']' ';'"""
-    p[0] = AST.AssignInstrVector(p[2], AST.ID(p[1], p.lineno(1)), AST.ID(p[3], p.lineno(1)), p[5], p.lineno(1))
+    """assign_instr : ID '=' array_reference ';'
+                    | ID PLUSASSIGN array_reference ';'
+                    | ID SUBASSIGN array_reference ';'
+                    | ID MULASSIGN array_reference ';'
+                    | ID DIVASSIGN array_reference ';'"""
+    p[0] = AST.AssignInstrVector(p[2], AST.ID(p[1], p.lineno(1)), p[3], p.lineno(1))
 
 
 def p_assign_instr_ref(p):
-    """assign_instr : ID '[' indexes ']' '=' expression ';'
-                    | ID '[' indexes ']' PLUSASSIGN expression ';'
-                    | ID '[' indexes ']' SUBASSIGN expression ';'
-                    | ID '[' indexes ']' MULASSIGN expression ';'
-                    | ID '[' indexes ']' DIVASSIGN expression ';' """
-    p[0] = AST.AssignInstrRef(p[5], AST.ID(p[1], p.lineno(1)), p[3], p[6], p.lineno(1))
+    """assign_instr : array_reference '=' expression ';'
+                    | array_reference PLUSASSIGN expression ';'
+                    | array_reference SUBASSIGN expression ';'
+                    | array_reference MULASSIGN expression ';'
+                    | array_reference DIVASSIGN expression ';' """
+    p[0] = AST.AssignInstrRef(p[2], p[1], p[3], p.lineno(1))
+
+
+def p_reference(p):
+    """array_reference : ID '[' indexes ']' """
+    p[0] = AST.ArrayRef(AST.ID(p[1], p.lineno(1)), p[3], p.lineno(1))
 
 
 def p_assign_unary(p):
@@ -110,7 +115,7 @@ def p_indexes_2(p):
 
 
 def p_indexes_1(p):
-    """ indexes : index"""
+    """ indexes : index """
     p[0] = p[1]
 
 
@@ -122,6 +127,11 @@ def p_index_int(p):
 def p_index_id(p):
     """ index : ID """
     p[0] = AST.ID(p[1], p.lineno(1))
+
+
+def p_index_range(p):
+    """index : expression ':' expression"""
+    p[0] = AST.IndexRange(p[1], p[3], p.lineno(1))
 
 
 def p_if_instr(p):
@@ -180,7 +190,8 @@ def p_printable_2(p):
 
 
 def p_printable_1(p):
-    """printable : expression """
+    """printable : expression
+                 | array_reference"""
     p[0] = p[1]
 
 
@@ -233,7 +244,7 @@ def p_expression_int(p):
 
 
 def p_expression_float(p):
-    """expression : FLOATNUM"""
+    """expression : FLOATNUM """
     p[0] = AST.FloatNum(p[1], p.lineno(1))
 
 

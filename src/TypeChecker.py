@@ -91,71 +91,57 @@ class TypeChecker(NodeVisitor):
                     self.errors.append(f"Wrong new type after assignment: line={node.lineno}")
 
     def visit_AssignInstrVector(self, node):
-        type_indexes = self.visit(node.indexes)
-        if type_indexes != "int":  # check if this is array of ints
-            self.errors.append(f"Wrong index type: line={node.lineno}")
-        else:
-            size = 1
-            tmp_node = node.indexes
-            while isinstance(tmp_node, AST.IndexDoubler):
-                size += 1
-                tmp_node = tmp_node.left
-            if node.name.name not in self.symbol_table.symbols:  # check if id was declared
+        if node.op != '=':
+            if self.symbol_table.get(node.id.name) is None:
                 self.errors.append(f"Missing symbol: line={node.lineno}")
-            elif size < self.symbol_table[node.name.name].dims:
-                self.errors.append(f"Not enough indexes in reference: line={node.lineno}")
-            elif size > self.symbol_table[node.name.name].dims:
-                self.errors.append(f"Too many indexes in reference: line={node.lineno}")
-            else:
-                tmp_node = node.indexes
-                tmp_array = self.symbol_table[node.name.name]
-                while size > 1:
-                    if tmp_node.right.value >= tmp_array.size:
-                        self.errors.append(f"Index out of range: line={node.lineno}")
-                    tmp_node = tmp_node.left
-                    tmp_array = tmp_array.elem_type
-                    size -= 1
-                if tmp_node.value >= tmp_array.size:
-                    self.errors.append(f"Index out of range: line={node.lineno}")
+        self.visit(node.ref)
 
     def visit_AssignInstrRef(self, node):
-        type_right = self.visit(node.expr)
-        if node.id.name not in self.symbol_table.symbols:  # check if id was declared
+        self.visit(node.ref)
+        self.visit(node.expr)
+
+    def visit_ArrayRef(self, node):
+        if self.symbol_table.get(node.id.name) is None:  # check if id was declared
             self.errors.append(f"Missing symbol: line={node.lineno}")
-        elif not isinstance(self.symbol_table[node.id.name], Array):  # check if it is an array
+        elif not isinstance(self.symbol_table.get(node.id.name), Array):  # check if it is an array
             self.errors.append(f"Wrong reference object: line={node.lineno}")
         else:
             type_indexes = self.visit(node.indexes)
             if type_indexes != "int":  # check if this is array of ints
                 self.errors.append(f"Wrong index type: line={node.lineno}")
             else:
-                if isinstance(node.indexes, AST.IntNum):  # edge case for single index
-                    indexes_list = [node.indexes.name]
-                elif isinstance(node.indexes, AST.IndexDoubler):  # case for multiple indexes
-                    indexes_list = []  # list of indexes
-                    curr_index = node.indexes
-                    while isinstance(curr_index, AST.IndexDoubler):
-                        indexes_list.append(curr_index.right.value)
-                        curr_index = curr_index.left
-                        if not isinstance(curr_index, AST.IndexDoubler):
-                            indexes_list.append(curr_index.value)
-                    indexes_list = indexes_list[::-1]  # left-recursion in IndexDouble -> reverse
-                else:
-                    self.errors.append(f"Wrong reference type: line={node.lineno}")
-                    return
-                type_array = self.symbol_table[node.id.name]
-                array_sizes = [type_array.size]
-                while isinstance(type_array.elem_type, Array):  # get array sizes down the matrix to compare
-                    type_array = type_array.elem_type
-                    array_sizes.append(type_array.size)
-
-                if len(indexes_list) > len(array_sizes):  # check if not too many indexes
+                size = 1
+                tmp_node = node.indexes
+                while isinstance(tmp_node, AST.IndexDoubler):
+                    size += 1
+                    tmp_node = tmp_node.left
+                if size < self.symbol_table[node.id.name].dims:
+                    self.errors.append(f"Too few indexes in reference: line={node.lineno}")
+                elif size > self.symbol_table[node.id.name].dims:
                     self.errors.append(f"Too many indexes in reference: line={node.lineno}")
-                    return
-                for i, idx in enumerate(indexes_list):  # compare indexes and array sizes
-                    if idx >= array_sizes[i]:
+                else:
+                    tmp_node = node.indexes
+                    tmp_array = self.symbol_table.get(node.id.name)
+                    index = 0
+                    while isinstance(tmp_node, AST.IndexDoubler):
+                        if isinstance(tmp_node.right, AST.IntNum):
+                            index = tmp_node.right.value
+                        if isinstance(tmp_node.right, AST.ID):
+                            if self.symbol_table.get(tmp_node.right.name) is None:
+                                self.errors.append(f"Missing symbol: line={node.lineno}")
+                            else:
+                                index = self.symbol_table.get(tmp_node.right.name)
+                        if index >= tmp_array.size:
+                            self.errors.append(f"Index out of range: line={node.lineno}")
+                        tmp_node = tmp_node.left
+                        tmp_array = tmp_array.elem_type
+                    if isinstance(tmp_node, AST.IntNum):
+                        index = tmp_node.value
+                    if isinstance(tmp_node, AST.ID):
+                        if self.symbol_table.get(tmp_node.name) is None:
+                            self.errors.append(f"Missing symbol: line={node.lineno}")
+                    if index >= tmp_array.size:
                         self.errors.append(f"Index out of range: line={node.lineno}")
-                        return
 
     def visit_AssignUnary(self, node):
         type_expr = self.visit(node.expr)
@@ -192,7 +178,6 @@ class TypeChecker(NodeVisitor):
             self.errors.append(f"Mismatched sizes in matrix declaration in line: {node.lineno}")
         if type_left.dims != type_right.dims:
             self.errors.append(f"Mismatched dimensions in matrix declaration in line: {node.lineno}")
-
         return Array(type_right.size, "int", type_right.dims)
 
     def visit_IndexDoubler(self, node):
@@ -300,10 +285,10 @@ class TypeChecker(NodeVisitor):
                 array = "int"
                 dim = 1
                 while isinstance(indexes, AST.IndexDoubler):
-                    array = Array(indexes.right.name, array, dim)
+                    array = Array(indexes.right.value, array, dim)
                     dim += 1
                     indexes = indexes.left
-                return Array(indexes.name, array, dim)
+                return Array(indexes.value, array, dim)
         return "any"
 
     def visit_IntNum(self, node):

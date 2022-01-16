@@ -22,20 +22,25 @@ class AssignInstr(Node):
 
 
 class AssignInstrVector(Node):
-    def __init__(self, op, left, name, indexes, lineno):
+    def __init__(self, op, id, ref, lineno):
         self.op = op
-        self.left = left
-        self.name = name
-        self.indexes = indexes
+        self.id = id
+        self.ref = ref
         super().__init__(lineno)
 
 
 class AssignInstrRef(Node):
-    def __init__(self, op, id, indexes, expr, lineno):
+    def __init__(self, op, ref, expr, lineno):
         self.op = op
+        self.ref = ref
+        self.expr = expr
+        super().__init__(lineno)
+
+
+class ArrayRef(Node):
+    def __init__(self, id, indexes, lineno):
         self.id = id
         self.indexes = indexes
-        self.expr = expr
         super().__init__(lineno)
 
 
@@ -61,6 +66,13 @@ class SubarrayDoubler(Node):
 
 
 class IndexDoubler(Node):
+    def __init__(self, left, right, lineno):
+        self.left = left
+        self.right = right
+        super().__init__(lineno)
+
+
+class IndexRange(Node):
     def __init__(self, left, right, lineno):
         self.left = left
         self.right = right

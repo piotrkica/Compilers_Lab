@@ -23,24 +23,25 @@ class TreePrinter:
     @addToClass(AST.AssignInstr)
     def printTree(self, indent=0):
         print("| " * indent + self.op)
-        print("| " * (indent + 1) + self.left.value)
+        print("| " * (indent + 1) + self.left.name)
         self.right.printTree(indent + 1)
 
     @addToClass(AST.AssignInstrVector)
     def printTree(self, indent=0):
         print("| " * indent + self.op)
-        print("| " * (indent + 1) + self.left.value)
-        print("| " * (indent + 1) + "REF")
-        print("| " * (indent + 2) + self.name.value)
-        self.indexes.printTree(indent + 2)
+        self.indexes.printTree(indent + 1)
 
     @addToClass(AST.AssignInstrRef)
     def printTree(self, indent=0):
         print("| " * indent + self.op)
-        print("| " * (indent + 1) + "REF")
-        print("| " * (indent + 2) + self.id.value)
-        self.indexes.printTree(indent + 2)
+        self.ref.printTree(indent + 1)
         self.expr.printTree(indent + 1)
+
+    @addToClass(AST.ArrayRef)
+    def printTree(self, indent=0):
+        print("| " * indent + "REF")
+        print("| " * (indent + 1) + self.id.name)
+        self.indexes.printTree(indent + 1)
 
     @addToClass(AST.AssignUnary)
     def printTree(self, indent=0):
@@ -63,6 +64,12 @@ class TreePrinter:
     def printTree(self, indent=0):
         self.left.printTree(indent)
         self.right.printTree(indent)
+
+    @addToClass(AST.IndexRange)
+    def printTree(self, indent=0):
+        print("| " * indent + ":")
+        self.left.printTree(indent + 1)
+        self.right.printTree(indent + 1)
 
     @addToClass(AST.If)
     def printTree(self, indent=0):

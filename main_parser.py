@@ -1,4 +1,5 @@
 import sys
+
 from src import scanner, parser
 
 if __name__ == '__main__':

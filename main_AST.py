@@ -1,8 +1,7 @@
 import sys
-import ply.yacc as yacc
+
 from src.scanner import lexer
 from src.parser import parser
-from src.TreePrinter import TreePrinter
 
 if __name__ == '__main__':
 

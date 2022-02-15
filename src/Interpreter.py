@@ -1,10 +1,11 @@
+import sys
+import copy
+
 from src import AST
 from src import SymbolTable
 from src.Memory import *
 from src.Exceptions import *
 from src.visit import *
-import sys
-import copy
 
 sys.setrecursionlimit(10000)
 
@@ -172,7 +173,7 @@ class Interpreter(object):
             except ContinueException:
                 Interpreter.memory.set(name, Interpreter.memory.get(name) + 1)
                 continue
-            Interpreter.memory.set(name, Interpreter.memory.get(name)+1)
+            Interpreter.memory.set(name, Interpreter.memory.get(name) + 1)
         Interpreter.memory.pop()
 
     @when(AST.Range)
@@ -322,5 +323,3 @@ class Interpreter(object):
     @when(AST.Error)
     def visit(self, node):
         pass
-
-

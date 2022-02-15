@@ -1,5 +1,5 @@
 import sys
-import ply.yacc as yacc
+
 from src.parser import parser
 from src.scanner import lexer
 from src.TypeChecker import TypeChecker

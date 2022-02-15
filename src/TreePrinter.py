@@ -47,7 +47,7 @@ class TreePrinter:
     @addToClass(AST.AssignUnary)
     def printTree(self, indent=0):
         print("| " * indent + self.op)
-        print("| " * (indent + 1) + self.id.value)
+        print("| " * (indent + 1) + self.id.name)
         print("| " * (indent + 2) + '-')
         self.expr.printTree(indent + 2)
 
@@ -102,7 +102,7 @@ class TreePrinter:
 
     @addToClass(AST.Range)
     def printTree(self, indent=0):
-        print("| " * indent + self.id.value)
+        print("| " * indent + self.id.name)
         print("| " * indent + "RANGE")
         self.expr1.printTree(indent + 1)
         self.expr2.printTree(indent + 1)
@@ -170,7 +170,7 @@ class TreePrinter:
 
     @addToClass(AST.ID)
     def printTree(self, indent=0):
-        print("| " * indent + self.value)
+        print("| " * indent + self.name)
 
     @addToClass(AST.Error)
     def printTree(self, indent=0):
